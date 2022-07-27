@@ -25,6 +25,7 @@ jobs:
       VMWARE_USERNAME: ${{ secrets.VMWARE_USERNAME }}
       VMWARE_PASSWORD: ${{ secrets.VMWARE_PASSWORD }}
       ANSIBLE_BECOME_PASSWORD: ${{ secrets.ANSIBLE_BECOME_PASSWORD }}
+      SECTIGO_ACME_KEY: ${{ secrets.SECTIGO_ACME_KEY }}
 
     container: 
       image: ghcr.io/library-ucsb/iac-ansible-container/ansible-container:latest
@@ -49,6 +50,11 @@ jobs:
           echo "${{ secrets.ANSIBLE_DEPLOY_SSH_KEY }}" > ansible/haproxy_legacy/ansible-ssh-private-key
           chmod 0400 ansible/haproxy_legacy/ansible-ssh-private-key
 
+      - name: create sectigo private key
+        run: |
+          echo "${{ secrets.SECTIGO_ACME_KEY }}" > ansible/haproxy_legacy/acme-private-key-ACTIVE.pem
+          chmod 0400 ansible/haproxy_legacy/acme-private-key-ACTIVE.pem
+
       - name: run ansible
         id: run_ansible
         shell: bash
@@ -69,6 +75,7 @@ jobs:
 
           rm ansible-ssh-private-key
           rm ansible-vault-password-file.txt
+          rm acme-private-key-ACTIVE.pem
 
           exit $rc             
 
